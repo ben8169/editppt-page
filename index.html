@@ -111,6 +111,25 @@
   </div>
 </section>
 
+<!-- Abstract -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            As the paradigm of AI shifts from text-based LLMs to Speech Language Models (SLMs), there is a growing demand for <strong>full-duplex</strong> systems capable of real-time, natural human-computer interaction.
+            However, the development of such models is constrained by the scarcity of high-quality, multi-speaker conversational data, as existing large-scale resources are predominantly single-speaker or limited in volume.
+            Addressing the complex dynamics of natural dialogue, such as overlapping and back-channeling remains a challenge, with standard processing pipelines suffering from diarization errors and ASR hallucinations.
+            To bridge this gap, we present <span class="dnerf">Sommelier</span>, a robust and scalable open-source data processing pipeline designed for full-duplex models.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Main Pipeline Figure -->
 <section class="hero teaser">
   <div class="container is-max-desktop">
@@ -124,8 +143,6 @@
     </div>
   </div>
 </section>
-
-
 
 
 
@@ -159,6 +176,315 @@
       </div>
     </div>
     <!--/ Contributions. -->
+  </div>
+</section>
+
+
+<!-- Method Section -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Method</h2>
+        <div class="content has-text-justified">
+          <p>
+            <span class="dnerf">Sommelier</span> is designed to transform raw, in-the-wild conversational audio into high-quality training corpora for full-duplex Speech Language Models (SLMs).
+            Unlike traditional ASR pipelines that prioritize clean, non-overlapping speech, our design philosophy centers on <strong>preserving the chaotic yet rich dynamics of human dialogue</strong>&mdash;such as overlaps and backchanneling&mdash;while ensuring scalability for web-scale processing.
+            The overall architecture is built as a modular framework where each component can be toggled or reconfigured, allowing researchers to adapt the trade-off between data purity and conversational authenticity.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Audio Standardization -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h3 class="title is-4">Audio Standardization</h3>
+        <div class="content has-text-justified">
+          <p>
+            Since collected radio and podcast data vary in format and volume, we convert all audio to a standard format (16kHz, 16-bit, Mono) and perform loudness normalization to &minus;20dBFS using <code>pydub</code> and <code>librosa</code>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- VAD & Speaker Diarization -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h3 class="title is-4">VAD &amp; Speaker Diarization</h3>
+        <div class="content has-text-justified">
+          <p>
+            To prevent out-of-memory issues, we split long audio files into units of less than 5 minutes using a VAD model to cut at silence intervals.
+            For speaker diarization, instead of the commonly used Pyannote <code>speaker-diarization-3.1</code>, we adopt <strong>Sortformer</strong> from NVIDIA, which demonstrates superior robustness in capturing very short utterances such as backchanneling.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Handling Overlapping Speech -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h3 class="title is-4">Handling Overlapping Speech</h3>
+        <div class="content has-text-justified">
+          <p>
+            Conversational audio features frequent turn changes and short utterances. We categorize overlapping scenarios into four distinct cases and select <strong>Case 4</strong> as our baseline, which allows both segments to contain the overlap based on speaker identity, preserving full information.
+            We incorporate a module that performs two-speaker separation (SepReformer) on the overlapped intervals with speaker identity matching via cosine similarity of speaker embeddings.
+          </p>
+        </div>
+        <div class="has-text-centered" style="margin-top: 1rem;">
+          <img src="./static/images/overlap.png" alt="Overlap separation process" style="max-width: 75%;">
+          <p class="is-size-7 has-text-grey" style="margin-top: 0.5rem;">Four distinct cases for handling overlapping speech segments.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Background Music Removal -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h3 class="title is-4">Background Music Removal</h3>
+        <div class="content has-text-justified">
+          <p>
+            Audio from radio broadcasts or dramas often contains background music (BGM). We employ <strong>PANNs</strong> to estimate the probability of background music presence in each segment.
+            If the probability exceeds 0.3, we apply the <strong>Demucs</strong> model to extract the vocal track. Since music removal can degrade speech quality, we selectively apply it only to segments identified by PANNs, minimizing unnecessary processing.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ensemble-based ASR -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h3 class="title is-4">Ensemble-based ASR</h3>
+        <div class="content has-text-justified">
+          <p>
+            Relying on a single ASR model poses significant risks due to hallucinations, particularly in silent or noisy segments. We employ a <strong>ROVER</strong> (Recognizer Output Voting Error Reduction) ensemble strategy combining outputs from three distinct SOTA models (Whisper, Canary, Parakeet).
+            We align transcripts at the word level and apply a prioritized majority voting scheme: a word is accepted if predicted by at least two models. Residual hallucinations are further pruned using a <code>RepetitionFilter</code> that discards samples with excessive n-gram repetitions.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Experiments Section -->
+<section class="section" style="background-color: #fafafa;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Experiments</h2>
+      </div>
+    </div>
+
+    <!-- Fine-tuning Results -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h3 class="title is-4">Effectiveness of Sommelier-Processed Data for Full-Duplex Models</h3>
+        <div class="content has-text-justified">
+          <p>
+            We validated the pipeline by performing LoRA fine-tuning on <code>moshiko-pytorch-bf16</code> using 83 hours of <span class="dnerf">Sommelier</span>-processed data and evaluated using the Full-Duplex-Bench 1.0. The fine-tuned model shows significant improvements across Backchanneling, Smooth Turn-Taking, and User Interruption handling.
+          </p>
+        </div>
+
+        <!-- Table: Fine-tuning Results -->
+        <div class="table-container" style="overflow-x: auto;">
+          <table class="table is-bordered is-striped is-hoverable is-fullwidth" style="font-size: 0.85rem;">
+            <thead>
+              <tr>
+                <th rowspan="2">Model</th>
+                <th colspan="2">Pause Handling</th>
+                <th colspan="3">Backchannel</th>
+                <th colspan="2">Smooth Turn Taking</th>
+                <th colspan="3">User Interruption</th>
+              </tr>
+              <tr>
+                <th>Synth. TOR &darr;</th><th>Candor TOR &darr;</th>
+                <th>TOR &darr;</th><th>Freq &uarr;</th><th>JSD &darr;</th>
+                <th>Candor TOR &uarr;</th><th>Latency &darr;</th>
+                <th>TOR &uarr;</th><th>GPT-4o &uarr;</th><th>Latency &darr;</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Moshi</td>
+                <td>0.985</td><td>0.980</td>
+                <td>1.000</td><td>0.001</td><td>0.957</td>
+                <td>0.941</td><td>0.265</td>
+                <td>1.000</td><td>0.765</td><td>0.257</td>
+              </tr>
+              <tr style="background-color: #e8f5e9; font-weight: bold;">
+                <td>Moshi + Sommelier</td>
+                <td>1.000</td><td>1.000</td>
+                <td>0.291</td><td>0.052</td><td>0.630</td>
+                <td>1.000</td><td>0.344</td>
+                <td>0.858</td><td>3.684</td><td>1.065</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="is-size-7 has-text-grey">Full-Duplex-Bench 1.0 results. Arrows indicate whether higher (&uarr;) or lower (&darr;) values are better.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diarization Results -->
+    <div class="columns is-centered has-text-centered" style="margin-top: 2rem;">
+      <div class="column is-four-fifths">
+        <h3 class="title is-4">Diarization Model Choice</h3>
+        <div class="content has-text-justified">
+          <p>
+            We compare <strong>Sortformer</strong> against the <strong>Pyannote 3.1</strong> baseline on VoxConverse. Sortformer consistently outperforms across all metrics, with the most pronounced gains in short utterances and rapid turn-taking&mdash;regimes critical for full-duplex conversational modeling.
+          </p>
+        </div>
+
+        <div class="table-container" style="overflow-x: auto;">
+          <table class="table is-bordered is-striped is-hoverable" style="font-size: 0.85rem; margin: 0 auto;">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>DER (%)</th>
+                <th>JER (%)</th>
+                <th>DER (&le;1.0s, %)</th>
+                <th>DER (turn, %)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Pyannote 3.1</td>
+                <td>8.40</td><td>17.68</td><td>20.21</td><td>0.051</td>
+              </tr>
+              <tr style="background-color: #e8f5e9; font-weight: bold;">
+                <td>Sortformer</td>
+                <td>7.16</td><td>14.69</td><td>16.87</td><td>0.006</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="is-size-7 has-text-grey" style="margin-top: 0.5rem;">Diarization model ablation on VoxConverse (common subset, &le;4 speakers). Lower is better.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlap Separation Results -->
+    <div class="columns is-centered has-text-centered" style="margin-top: 2rem;">
+      <div class="column is-four-fifths">
+        <h3 class="title is-4">Speech Quality of Overlap Separation</h3>
+        <div class="content has-text-justified">
+          <p>
+            We evaluate overlap separation quality across varying Signal-to-Interference Ratios (SIR) and overlap ratios using 900 synthesized samples from LibriSpeech.
+            Our separation method (<strong>Sep</strong>) consistently outperforms the baseline across all conditions, with perceptual quality (UTMOS) closely approximating the Oracle upper bound.
+          </p>
+        </div>
+
+        <div class="table-container" style="overflow-x: auto;">
+          <table class="table is-bordered is-striped is-hoverable" style="font-size: 0.82rem; margin: 0 auto;">
+            <thead>
+              <tr>
+                <th rowspan="2">SIR</th>
+                <th rowspan="2">OVL</th>
+                <th colspan="3">WER (%) &darr;</th>
+                <th colspan="3">STOI &uarr;</th>
+                <th colspan="3">UTMOS &uarr;</th>
+              </tr>
+              <tr>
+                <th>Ori</th><th>Sep</th><th>Orc</th>
+                <th>Ori</th><th>Sep</th><th>Orc</th>
+                <th>Ori</th><th>Sep</th><th>Orc</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td rowspan="3">0 dB</td>
+                <td>0.2</td><td>10.5</td><td style="background:#e8f5e9;font-weight:bold">6.1</td><td>4.8</td><td>.961</td><td style="background:#e8f5e9;font-weight:bold">.982</td><td>1.00</td><td>3.04</td><td style="background:#e8f5e9;font-weight:bold">3.53</td><td>3.88</td></tr>
+              <tr><td>0.5</td><td>13.9</td><td style="background:#e8f5e9;font-weight:bold">7.9</td><td>5.8</td><td>.888</td><td style="background:#e8f5e9;font-weight:bold">.969</td><td>1.00</td><td>2.27</td><td style="background:#e8f5e9;font-weight:bold">3.32</td><td>3.87</td></tr>
+              <tr><td>1.0</td><td>48.9</td><td style="background:#e8f5e9;font-weight:bold">15.6</td><td>5.3</td><td>.778</td><td style="background:#e8f5e9;font-weight:bold">.913</td><td>1.00</td><td>1.70</td><td style="background:#e8f5e9;font-weight:bold">3.02</td><td>3.84</td></tr>
+              <tr><td rowspan="3">5 dB</td>
+                <td>0.2</td><td>11.3</td><td style="background:#e8f5e9;font-weight:bold">7.6</td><td>5.3</td><td>.961</td><td style="background:#e8f5e9;font-weight:bold">.978</td><td>1.00</td><td>3.06</td><td style="background:#e8f5e9;font-weight:bold">3.47</td><td>3.87</td></tr>
+              <tr><td>0.5</td><td>18.8</td><td style="background:#e8f5e9;font-weight:bold">7.1</td><td>4.3</td><td>.887</td><td style="background:#e8f5e9;font-weight:bold">.971</td><td>1.00</td><td>2.34</td><td style="background:#e8f5e9;font-weight:bold">3.39</td><td>3.91</td></tr>
+              <tr><td>1.0</td><td>52.5</td><td style="background:#e8f5e9;font-weight:bold">9.1</td><td>4.0</td><td>.761</td><td style="background:#e8f5e9;font-weight:bold">.936</td><td>1.00</td><td>1.79</td><td style="background:#e8f5e9;font-weight:bold">3.12</td><td>3.91</td></tr>
+              <tr><td rowspan="3">10 dB</td>
+                <td>0.2</td><td>12.6</td><td style="background:#e8f5e9;font-weight:bold">7.0</td><td>5.6</td><td>.961</td><td style="background:#e8f5e9;font-weight:bold">.980</td><td>1.00</td><td>3.26</td><td style="background:#e8f5e9;font-weight:bold">3.60</td><td>3.98</td></tr>
+              <tr><td>0.5</td><td>29.7</td><td style="background:#e8f5e9;font-weight:bold">10.1</td><td>5.2</td><td>.877</td><td style="background:#e8f5e9;font-weight:bold">.956</td><td>1.00</td><td>2.58</td><td style="background:#e8f5e9;font-weight:bold">3.21</td><td>3.86</td></tr>
+              <tr><td>1.0</td><td>51.0</td><td style="background:#e8f5e9;font-weight:bold">13.8</td><td>4.8</td><td>.754</td><td style="background:#e8f5e9;font-weight:bold">.919</td><td>1.00</td><td>2.17</td><td style="background:#e8f5e9;font-weight:bold">3.01</td><td>3.92</td></tr>
+            </tbody>
+          </table>
+          <p class="is-size-7 has-text-grey" style="margin-top: 0.5rem;">Speech quality for <strong>Ori</strong>ginal, source <strong>Sep</strong>arated, and <strong>Orc</strong> (Oracle). Highlighted cells show our method.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ASR Ensemble Results -->
+    <div class="columns is-centered has-text-centered" style="margin-top: 2rem;">
+      <div class="column is-four-fifths">
+        <h3 class="title is-4">ASR Ensemble Performance</h3>
+        <div class="content has-text-justified">
+          <p>
+            Our three-model ensemble achieves a significant WER improvement of approximately <strong>37%</strong> on LibriSpeech Test Other, reducing the error rate from 6.26% to 3.92% compared to standalone Whisper Large v3.
+            The ensemble also successfully corrects Whisper hallucinations such as repetitive generation.
+          </p>
+        </div>
+
+        <div class="table-container" style="overflow-x: auto;">
+          <table class="table is-bordered is-striped is-hoverable" style="font-size: 0.85rem; margin: 0 auto;">
+            <thead>
+              <tr>
+                <th>Dataset</th>
+                <th>Model</th>
+                <th>WER (%)</th>
+                <th>Time (s)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td rowspan="2">LibriSpeech Test Clean</td>
+                <td>Whisper</td><td>3.63</td><td>0.39</td></tr>
+              <tr style="background-color: #e8f5e9; font-weight: bold;">
+                <td>MoE (Ours)</td><td>2.04</td><td>1.40</td></tr>
+              <tr><td rowspan="2">LibriSpeech Test Other</td>
+                <td>Whisper</td><td>6.26</td><td>0.35</td></tr>
+              <tr style="background-color: #e8f5e9; font-weight: bold;">
+                <td>MoE (Ours)</td><td>3.92</td><td>1.27</td></tr>
+              <tr><td rowspan="2">TEDLIUM3 Test</td>
+                <td>Whisper</td><td>12.19</td><td>0.36</td></tr>
+              <tr style="background-color: #e8f5e9; font-weight: bold;">
+                <td>MoE (Ours)</td><td>10.66</td><td>1.33</td></tr>
+            </tbody>
+          </table>
+          <p class="is-size-7 has-text-grey" style="margin-top: 0.5rem;">Whisper refers to <code>Whisper-large-v3</code>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Latency -->
+    <div class="columns is-centered has-text-centered" style="margin-top: 2rem;">
+      <div class="column is-four-fifths">
+        <h3 class="title is-4">Latency</h3>
+        <div class="content has-text-justified">
+          <p>
+            Running a single process on an A100 (80GB) yields a total Real-Time Factor (RTF) of <strong>0.1746</strong>. With peak memory usage of 23GB, three concurrent processes per GPU effectively lower the RTF to <strong>0.0443</strong>. Processing 10,000 hours of audio using eight A100 GPUs takes approximately 55 hours.
+          </p>
+        </div>
+
+        <div class="table-container" style="overflow-x: auto;">
+          <table class="table is-bordered is-striped is-hoverable" style="font-size: 0.85rem; margin: 0 auto;">
+            <thead>
+              <tr>
+                <th>Stage</th>
+                <th>Processing Time (s)</th>
+                <th>RTF</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Audio Duration</td><td>120.00</td><td>&mdash;</td></tr>
+              <tr><td>VAD + Sortformer</td><td>1.91</td><td>0.0159</td></tr>
+              <tr><td>SepReformer Separation</td><td>0.15</td><td>0.0013</td></tr>
+              <tr><td>ASR Ensemble</td><td>13.91</td><td>0.1159</td></tr>
+              <tr><td>FlowSE Denoising</td><td>4.99</td><td>0.0416</td></tr>
+              <tr style="background-color: #e8f5e9; font-weight: bold;">
+                <td>Total</td><td>20.95</td><td>0.1746</td></tr>
+            </tbody>
+          </table>
+          <p class="is-size-7 has-text-grey" style="margin-top: 0.5rem;">Processing time breakdown for a 120-second audio sample on a single A100 GPU.</p>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
