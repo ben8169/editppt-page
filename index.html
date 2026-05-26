@@ -1,673 +1,112 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="description"
-        content="🍷Sommelier: A Scalable Web-Speech Pre-Processing Pipeline for Full-Duplex Speech Language Models">
-  <meta name="keywords" content="Sommelier, Full-Duplex, Speech Language Models, Conversational AI, Speech Processing">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sommelier: A Scalable Web-Speech Pre-Processing Pipeline for Full-Duplex Speech Language Models</title>
-
-  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
-        rel="stylesheet">
-
-  <link rel="stylesheet" href="./static/css/bulma.min.css">
-  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
-  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
-  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-  <link rel="stylesheet" href="./static/css/index.css">
-  <link rel="icon" href="./static/images/favicon.svg">
-
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script defer src="./static/js/fontawesome.all.min.js"></script>
-  <script src="./static/js/bulma-carousel.min.js"></script>
-  <script src="./static/js/bulma-slider.min.js"></script>
-  <script src="./static/js/index.js"></script>
-  <link rel="stylesheet" href="./static/css/demo.css">
+  <title>EditPPT</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; }
+    .hero-title { font-weight: 700; letter-spacing: -0.5px; }
+    .section-placeholder {
+      border: 1px dashed #d0d0d0;
+      border-radius: 8px;
+      padding: 2.5rem;
+      color: #9aa0a6;
+      text-align: center;
+      background: #fafafa;
+    }
+    .footer-note { color: #9aa0a6; font-size: 0.85rem; }
+  </style>
 </head>
 <body>
 
-<nav class="navbar" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-    </a>
-  </div>
-</nav>
-
-
-<section class="hero">
-  <div class="hero-body">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered">
-        <div class="column has-text-centered">
-          <h1 class="title is-1 publication-title">🍷Sommelier</h1>
-          <h2 class="subtitle is-3">A Scalable Open Multi-turn Audio Pre-processing <br> for Full-duplex Speech Language Models</h2>
-
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">
-              <a href="mailto:kyudan@kaist.ac.kr">Kyudan Jung</a><sup>1,2,&#9827;</sup>,
-            </span>
-            <span class="author-block">
-              <a href="mailto:jihvvan.kim@kaist.ac.kr">Jihwan Kim</a><sup>1,2,&#9827;</sup>,
-            </span>
-            <span class="author-block">
-              <a href="mailto:soyoon.kim@navercorp.com">Soyoon Kim</a><sup>2</sup>,
-            </span>
-            <span class="author-block">
-              <a href="mailto:jeonghoon.samuel@navercorp.com">Jeonghoon Kim</a><sup>2</sup>,
-            </span>
-            <span class="author-block">
-              <a href="mailto:jchoo@kaist.ac.kr">Jaegul Choo</a><sup>1,&dagger;</sup>,
-            </span>
-            <span class="author-block">
-              <a href="mailto:cbok.park@navercorp.com">Cheonbok Park</a><sup>1,2,&dagger;</sup>
-            </span>
-          </div>
-
-          <div class="is-size-5 publication-authors">
-            <span class="author-block"><sup>1</sup>KAIST AI,</span>
-            <span class="author-block"><sup>2</sup>NAVER Cloud</span>
-          </div>
-
-          <div class="is-size-6" style="margin-top: 0.5rem; color: #555;">
-            <span>&#9827; This work was done during the residency program at NAVER Cloud.</span>
-            <br>
-            <span>&dagger; Corresponding authors</span>
-          </div>
-
-          <div class="is-size-6" style="margin-top: 0.5rem; color: #777;">
-            {kyudan, jihvvan.kim}@kaist.ac.kr &nbsp; {soyoon.kim, jeonghoon.samuel, cbok.park}@navercorp.com &nbsp; jchoo@kaist.ac.kr
-          </div>
-
-          <div class="column has-text-centered">
-            <div class="publication-links">
-              <span class="link-block">
-                <a href="https://arxiv.org/pdf/2603.25750" class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="ai ai-arxiv"></i>
-                  </span>
-                  <span>Paper</span>
-                </a>
-              </span>
-              <!-- Code Link. -->
-              <span class="link-block">
-                <a href="https://github.com/naver-ai/sommelier" class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fab fa-github"></i>
-                  </span>
-                  <span>Code</span>
-                </a>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Abstract -->
-<section class="section">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Abstract</h2>
-        <div class="content has-text-justified">
-          <p>
-            As the paradigm of AI shifts from text-based LLMs to Speech Language Models (SLMs), there is a growing demand for <strong>full-duplex</strong> systems capable of real-time, natural human-computer interaction.
-            However, the development of such models is constrained by the scarcity of high-quality, multi-speaker conversational data, as existing large-scale resources are predominantly single-speaker or limited in volume.
-            Addressing the complex dynamics of natural dialogue, such as overlapping and back-channeling remains a challenge, with standard processing pipelines suffering from diarization errors and ASR hallucinations.
-            To bridge this gap, we present <span class="dnerf">Sommelier</span>, a robust and scalable open-source data processing pipeline designed for full-duplex models.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Main Pipeline Figure -->
-<section class="hero teaser">
-  <div class="container is-max-desktop">
-    <div class="hero-body">
-      <div class="has-text-centered">
-        <img src="./static/images/pipeline.png" alt="Sommelier Pipeline Overview" class="publication-image" style="width:110%;">
-      </div>
-      <h2 class="subtitle has-text-centered" style="margin-top: 1rem;">
-        Overview of the <span class="dnerf">Sommelier</span> pipeline for curating podcast-style, multi-turn conversational speech suitable for full-duplex training.
-      </h2>
-    </div>
-  </div>
-</section>
-
-
-
-<section class="section">
-  <div class="container is-max-desktop">
-    <!-- Contributions. -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Contributions</h2>
-        <div class="content has-text-justified">
-          <ul>
-            <li>
-              <strong>Scalable Pipeline for Full-Duplex SLMs:</strong>
-              We release a scalable pipeline for curating podcast-style, multi-turn conversational speech
-              suitable for full-duplex training, helping alleviate the community-wide data scarcity.
-            </li>
-            <li>
-              <strong>High-Fidelity Overlap Processing:</strong>
-              We provide a detailed processing strategy that explicitly handles overlaps via rigorous
-              diarization analysis and reduces ASR hallucinations using paralleled model ensembling
-              and n-gram filtering.
-            </li>
-            <li>
-              <strong>Full-Duplex Fine-Tuning and Data Requirement Insights:</strong>
-              We validate our pipeline by fine-tuning the full-duplex model Moshi on
-              <span class="dnerf">Sommelier</span>-processed speech and analyze practical data
-              requirements for stable full-duplex training.
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <!--/ Contributions. -->
-  </div>
-</section>
-
-
-<!-- Method Section -->
-<section class="section">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Method</h2>
-        <div class="content has-text-justified">
-          <p>
-            <span class="dnerf">Sommelier</span> is designed to transform raw, in-the-wild conversational audio into high-quality training corpora for full-duplex Speech Language Models (SLMs).
-            Unlike traditional ASR pipelines that prioritize clean, non-overlapping speech, our design philosophy centers on <strong>preserving the chaotic yet rich dynamics of human dialogue</strong>&mdash;such as overlaps and backchanneling&mdash;while ensuring scalability for web-scale processing.
-            The overall architecture is built as a modular framework where each component can be toggled or reconfigured, allowing researchers to adapt the trade-off between data purity and conversational authenticity.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Audio Standardization -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h3 class="title is-4">Audio Standardization</h3>
-        <div class="content has-text-justified">
-          <p>
-            Since collected radio and podcast data vary in format and volume, we convert all audio to a standard format (16kHz, 16-bit, Mono) and perform loudness normalization to &minus;20dBFS using <code>pydub</code> and <code>librosa</code>.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- VAD & Speaker Diarization -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h3 class="title is-4">VAD &amp; Speaker Diarization</h3>
-        <div class="content has-text-justified">
-          <p>
-            To prevent out-of-memory issues, we split long audio files into units of less than 5 minutes using a VAD model to cut at silence intervals.
-            For speaker diarization, instead of the commonly used Pyannote <code>speaker-diarization-3.1</code>, we adopt <strong>Sortformer</strong> from NVIDIA, which demonstrates superior robustness in capturing very short utterances such as backchanneling.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Handling Overlapping Speech -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h3 class="title is-4">Handling Overlapping Speech</h3>
-        <div class="content has-text-justified">
-          <p>
-            Conversational audio features frequent turn changes and short utterances. We categorize overlapping scenarios into four distinct cases and select <strong>Case 4</strong> as our baseline, which allows both segments to contain the overlap based on speaker identity, preserving full information.
-            We incorporate a module that performs two-speaker separation (SepReformer) on the overlapped intervals with speaker identity matching via cosine similarity of speaker embeddings.
-          </p>
-        </div>
-        <div class="has-text-centered" style="margin-top: 1rem;">
-          <img src="./static/images/overlap.png" alt="Overlap separation process" style="max-width: 75%;">
-          <p class="is-size-7 has-text-grey" style="margin-top: 0.5rem;">Four distinct cases for handling overlapping speech segments.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Background Music Removal -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h3 class="title is-4">Background Music Removal</h3>
-        <div class="content has-text-justified">
-          <p>
-            Audio from radio broadcasts or dramas often contains background music (BGM). We employ <strong>PANNs</strong> to estimate the probability of background music presence in each segment.
-            If the probability exceeds 0.3, we apply the <strong>Demucs</strong> model to extract the vocal track. Since music removal can degrade speech quality, we selectively apply it only to segments identified by PANNs, minimizing unnecessary processing.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Ensemble-based ASR -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h3 class="title is-4">Ensemble-based ASR</h3>
-        <div class="content has-text-justified">
-          <p>
-            Relying on a single ASR model poses significant risks due to hallucinations, particularly in silent or noisy segments. We employ a <strong>ROVER</strong> (Recognizer Output Voting Error Reduction) ensemble strategy combining outputs from three distinct SOTA models (Whisper, Canary, Parakeet).
-            We align transcripts at the word level and apply a prioritized majority voting scheme: a word is accepted if predicted by at least two models. Residual hallucinations are further pruned using a <code>RepetitionFilter</code> that discards samples with excessive n-gram repetitions.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- Experiments Section -->
-<section class="section" style="background-color: #fafafa;">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Experiments</h2>
-      </div>
-    </div>
-
-    <!-- Fine-tuning Results -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h3 class="title is-4">Effectiveness of Sommelier-Processed Data for Full-Duplex Models</h3>
-        <div class="content has-text-justified">
-          <p>
-            We validated the pipeline by performing LoRA fine-tuning on <code>moshiko-pytorch-bf16</code> using 83 hours of <span class="dnerf">Sommelier</span>-processed data and evaluated using the Full-Duplex-Bench 1.0. The fine-tuned model shows significant improvements across Backchanneling, Smooth Turn-Taking, and User Interruption handling.
-          </p>
-        </div>
-
-        <!-- Table: Fine-tuning Results -->
-        <div class="table-container" style="overflow-x: auto;">
-          <table class="table is-bordered is-striped is-hoverable is-fullwidth" style="font-size: 0.85rem;">
-            <thead>
-              <tr>
-                <th rowspan="2">Model</th>
-                <th colspan="2">Pause Handling</th>
-                <th colspan="3">Backchannel</th>
-                <th colspan="2">Smooth Turn Taking</th>
-                <th colspan="3">User Interruption</th>
-              </tr>
-              <tr>
-                <th>Synth. TOR &darr;</th><th>Candor TOR &darr;</th>
-                <th>TOR &darr;</th><th>Freq &uarr;</th><th>JSD &darr;</th>
-                <th>Candor TOR &uarr;</th><th>Latency &darr;</th>
-                <th>TOR &uarr;</th><th>GPT-4o &uarr;</th><th>Latency &darr;</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Moshi</td>
-                <td>0.985</td><td>0.980</td>
-                <td>1.000</td><td>0.001</td><td>0.957</td>
-                <td>0.941</td><td>0.265</td>
-                <td>1.000</td><td>0.765</td><td>0.257</td>
-              </tr>
-              <tr style="background-color: #e8f5e9; font-weight: bold;">
-                <td>Moshi + Sommelier</td>
-                <td>1.000</td><td>1.000</td>
-                <td>0.291</td><td>0.052</td><td>0.630</td>
-                <td>1.000</td><td>0.344</td>
-                <td>0.858</td><td>3.684</td><td>1.065</td>
-              </tr>
-            </tbody>
-          </table>
-          <p class="is-size-7 has-text-grey">Full-Duplex-Bench 1.0 results. Arrows indicate whether higher (&uarr;) or lower (&darr;) values are better.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Diarization Results -->
-    <div class="columns is-centered has-text-centered" style="margin-top: 2rem;">
-      <div class="column is-four-fifths">
-        <h3 class="title is-4">Diarization Model Choice</h3>
-        <div class="content has-text-justified">
-          <p>
-            We compare <strong>Sortformer</strong> against the <strong>Pyannote 3.1</strong> baseline on VoxConverse. Sortformer consistently outperforms across all metrics, with the most pronounced gains in short utterances and rapid turn-taking&mdash;regimes critical for full-duplex conversational modeling.
-          </p>
-        </div>
-
-        <div class="table-container" style="overflow-x: auto;">
-          <table class="table is-bordered is-striped is-hoverable" style="font-size: 0.85rem; margin: 0 auto;">
-            <thead>
-              <tr>
-                <th>Model</th>
-                <th>DER (%)</th>
-                <th>JER (%)</th>
-                <th>DER (&le;1.0s, %)</th>
-                <th>DER (turn, %)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Pyannote 3.1</td>
-                <td>8.40</td><td>17.68</td><td>20.21</td><td>0.051</td>
-              </tr>
-              <tr style="background-color: #e8f5e9; font-weight: bold;">
-                <td>Sortformer</td>
-                <td>7.16</td><td>14.69</td><td>16.87</td><td>0.006</td>
-              </tr>
-            </tbody>
-          </table>
-          <p class="is-size-7 has-text-grey" style="margin-top: 0.5rem;">Diarization model ablation on VoxConverse (common subset, &le;4 speakers). Lower is better.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Overlap Separation Results -->
-    <div class="columns is-centered has-text-centered" style="margin-top: 2rem;">
-      <div class="column is-four-fifths">
-        <h3 class="title is-4">Speech Quality of Overlap Separation</h3>
-        <div class="content has-text-justified">
-          <p>
-            We evaluate overlap separation quality across varying Signal-to-Interference Ratios (SIR) and overlap ratios using 900 synthesized samples from LibriSpeech.
-            Our separation method (<strong>Sep</strong>) consistently outperforms the baseline across all conditions, with perceptual quality (UTMOS) closely approximating the Oracle upper bound.
-          </p>
-        </div>
-
-        <div class="table-container" style="overflow-x: auto;">
-          <table class="table is-bordered is-striped is-hoverable" style="font-size: 0.82rem; margin: 0 auto;">
-            <thead>
-              <tr>
-                <th rowspan="2">SIR</th>
-                <th rowspan="2">OVL</th>
-                <th colspan="3">WER (%) &darr;</th>
-                <th colspan="3">STOI &uarr;</th>
-                <th colspan="3">UTMOS &uarr;</th>
-              </tr>
-              <tr>
-                <th>Ori</th><th>Sep</th><th>Orc</th>
-                <th>Ori</th><th>Sep</th><th>Orc</th>
-                <th>Ori</th><th>Sep</th><th>Orc</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td rowspan="3">0 dB</td>
-                <td>0.2</td><td>10.5</td><td style="background:#e8f5e9;font-weight:bold">6.1</td><td>4.8</td><td>.961</td><td style="background:#e8f5e9;font-weight:bold">.982</td><td>1.00</td><td>3.04</td><td style="background:#e8f5e9;font-weight:bold">3.53</td><td>3.88</td></tr>
-              <tr><td>0.5</td><td>13.9</td><td style="background:#e8f5e9;font-weight:bold">7.9</td><td>5.8</td><td>.888</td><td style="background:#e8f5e9;font-weight:bold">.969</td><td>1.00</td><td>2.27</td><td style="background:#e8f5e9;font-weight:bold">3.32</td><td>3.87</td></tr>
-              <tr><td>1.0</td><td>48.9</td><td style="background:#e8f5e9;font-weight:bold">15.6</td><td>5.3</td><td>.778</td><td style="background:#e8f5e9;font-weight:bold">.913</td><td>1.00</td><td>1.70</td><td style="background:#e8f5e9;font-weight:bold">3.02</td><td>3.84</td></tr>
-              <tr><td rowspan="3">5 dB</td>
-                <td>0.2</td><td>11.3</td><td style="background:#e8f5e9;font-weight:bold">7.6</td><td>5.3</td><td>.961</td><td style="background:#e8f5e9;font-weight:bold">.978</td><td>1.00</td><td>3.06</td><td style="background:#e8f5e9;font-weight:bold">3.47</td><td>3.87</td></tr>
-              <tr><td>0.5</td><td>18.8</td><td style="background:#e8f5e9;font-weight:bold">7.1</td><td>4.3</td><td>.887</td><td style="background:#e8f5e9;font-weight:bold">.971</td><td>1.00</td><td>2.34</td><td style="background:#e8f5e9;font-weight:bold">3.39</td><td>3.91</td></tr>
-              <tr><td>1.0</td><td>52.5</td><td style="background:#e8f5e9;font-weight:bold">9.1</td><td>4.0</td><td>.761</td><td style="background:#e8f5e9;font-weight:bold">.936</td><td>1.00</td><td>1.79</td><td style="background:#e8f5e9;font-weight:bold">3.12</td><td>3.91</td></tr>
-              <tr><td rowspan="3">10 dB</td>
-                <td>0.2</td><td>12.6</td><td style="background:#e8f5e9;font-weight:bold">7.0</td><td>5.6</td><td>.961</td><td style="background:#e8f5e9;font-weight:bold">.980</td><td>1.00</td><td>3.26</td><td style="background:#e8f5e9;font-weight:bold">3.60</td><td>3.98</td></tr>
-              <tr><td>0.5</td><td>29.7</td><td style="background:#e8f5e9;font-weight:bold">10.1</td><td>5.2</td><td>.877</td><td style="background:#e8f5e9;font-weight:bold">.956</td><td>1.00</td><td>2.58</td><td style="background:#e8f5e9;font-weight:bold">3.21</td><td>3.86</td></tr>
-              <tr><td>1.0</td><td>51.0</td><td style="background:#e8f5e9;font-weight:bold">13.8</td><td>4.8</td><td>.754</td><td style="background:#e8f5e9;font-weight:bold">.919</td><td>1.00</td><td>2.17</td><td style="background:#e8f5e9;font-weight:bold">3.01</td><td>3.92</td></tr>
-            </tbody>
-          </table>
-          <p class="is-size-7 has-text-grey" style="margin-top: 0.5rem;">Speech quality for <strong>Ori</strong>ginal, source <strong>Sep</strong>arated, and <strong>Orc</strong> (Oracle). Highlighted cells show our method.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- ASR Ensemble Results -->
-    <div class="columns is-centered has-text-centered" style="margin-top: 2rem;">
-      <div class="column is-four-fifths">
-        <h3 class="title is-4">ASR Ensemble Performance</h3>
-        <div class="content has-text-justified">
-          <p>
-            Our three-model ensemble achieves a significant WER improvement of approximately <strong>37%</strong> on LibriSpeech Test Other, reducing the error rate from 6.26% to 3.92% compared to standalone Whisper Large v3.
-            The ensemble also successfully corrects Whisper hallucinations such as repetitive generation.
-          </p>
-        </div>
-
-        <div class="table-container" style="overflow-x: auto;">
-          <table class="table is-bordered is-striped is-hoverable" style="font-size: 0.85rem; margin: 0 auto;">
-            <thead>
-              <tr>
-                <th>Dataset</th>
-                <th>Model</th>
-                <th>WER (%)</th>
-                <th>Time (s)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td rowspan="2">LibriSpeech Test Clean</td>
-                <td>Whisper</td><td>3.63</td><td>0.39</td></tr>
-              <tr style="background-color: #e8f5e9; font-weight: bold;">
-                <td>MoE (Ours)</td><td>2.04</td><td>1.40</td></tr>
-              <tr><td rowspan="2">LibriSpeech Test Other</td>
-                <td>Whisper</td><td>6.26</td><td>0.35</td></tr>
-              <tr style="background-color: #e8f5e9; font-weight: bold;">
-                <td>MoE (Ours)</td><td>3.92</td><td>1.27</td></tr>
-              <tr><td rowspan="2">TEDLIUM3 Test</td>
-                <td>Whisper</td><td>12.19</td><td>0.36</td></tr>
-              <tr style="background-color: #e8f5e9; font-weight: bold;">
-                <td>MoE (Ours)</td><td>10.66</td><td>1.33</td></tr>
-            </tbody>
-          </table>
-          <p class="is-size-7 has-text-grey" style="margin-top: 0.5rem;">Whisper refers to <code>Whisper-large-v3</code>.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Latency -->
-    <div class="columns is-centered has-text-centered" style="margin-top: 2rem;">
-      <div class="column is-four-fifths">
-        <h3 class="title is-4">Latency</h3>
-        <div class="content has-text-justified">
-          <p>
-            Running a single process on an A100 (80GB) yields a total Real-Time Factor (RTF) of <strong>0.1746</strong>. With peak memory usage of 23GB, three concurrent processes per GPU effectively lower the RTF to <strong>0.0443</strong>. Processing 10,000 hours of audio using eight A100 GPUs takes approximately 55 hours.
-          </p>
-        </div>
-
-        <div class="table-container" style="overflow-x: auto;">
-          <table class="table is-bordered is-striped is-hoverable" style="font-size: 0.85rem; margin: 0 auto;">
-            <thead>
-              <tr>
-                <th>Stage</th>
-                <th>Processing Time (s)</th>
-                <th>RTF</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>Audio Duration</td><td>120.00</td><td>&mdash;</td></tr>
-              <tr><td>VAD + Sortformer</td><td>1.91</td><td>0.0159</td></tr>
-              <tr><td>SepReformer Separation</td><td>0.15</td><td>0.0013</td></tr>
-              <tr><td>ASR Ensemble</td><td>13.91</td><td>0.1159</td></tr>
-              <tr><td>FlowSE Denoising</td><td>4.99</td><td>0.0416</td></tr>
-              <tr style="background-color: #e8f5e9; font-weight: bold;">
-                <td>Total</td><td>20.95</td><td>0.1746</td></tr>
-            </tbody>
-          </table>
-          <p class="is-size-7 has-text-grey" style="margin-top: 0.5rem;">Processing time breakdown for a 120-second audio sample on a single A100 GPU.</p>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-
-<!-- Demo Section -->
-<section class="section" id="demo">
-  <div class="container" style="max-width: 1200px;">
-    <div class="columns is-centered has-text-centered">
-      <div class="column">
-        <h2 class="title is-3">Demo (1)</h2>
-        <p class="subtitle is-5" style="margin-bottom: 2rem;">
-          Explore the Sommelier pipeline output: original audio, separated speaker segments, and transcripts.
+  <!-- Title -->
+  <section class="hero is-medium">
+    <div class="hero-body has-text-centered">
+      <div class="container">
+        <h1 class="title is-1 hero-title">EditPPT</h1>
+        <h2 class="subtitle is-4" style="margin-top:1rem;">
+          <!-- TODO: one-line tagline -->
+          An AI-powered PowerPoint editing agent
+        </h2>
+        <p class="subtitle is-6" style="color:#9aa0a6;">
+          <!-- TODO: authors / affiliation -->
+          Authors &nbsp;·&nbsp; Affiliation
         </p>
+
+        <!-- Action buttons -->
+        <div class="buttons is-centered" style="margin-top:1.5rem;">
+          <a class="button is-dark is-rounded" href="#">
+            <span class="icon"><i class="fas fa-file-pdf"></i></span><span>Paper</span>
+          </a>
+          <a class="button is-dark is-rounded" href="#">
+            <span class="icon"><i class="fab fa-github"></i></span><span>Code</span>
+          </a>
+          <a class="button is-dark is-rounded" href="#">
+            <span class="icon"><i class="fas fa-play"></i></span><span>Demo</span>
+          </a>
+        </div>
       </div>
     </div>
+  </section>
 
-    <!-- Original Audio Player -->
-    <div class="box" id="original-audio-box">
-      <h3 class="title is-5" style="margin-bottom: 1.5rem;">Original Audio</h3>
-      <p class="subtitle is-6" style="margin-bottom: 0.5rem; color: #666;">
-        Episode: <strong>Dr. Beth Harris and Dr. Steven Zucker of Smarthistory</strong>
+  <!-- Abstract -->
+  <section class="section">
+    <div class="container" style="max-width: 900px;">
+      <h2 class="title is-3 has-text-centered">Abstract</h2>
+      <div class="section-placeholder">
+        <!-- TODO: abstract text -->
+        Abstract goes here.
+      </div>
+    </div>
+  </section>
+
+  <!-- Method / Figure -->
+  <section class="section">
+    <div class="container" style="max-width: 900px;">
+      <h2 class="title is-3 has-text-centered">Method</h2>
+      <div class="section-placeholder">
+        <!-- TODO: pipeline figure + description -->
+        Figure / description placeholder.
+      </div>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section class="section">
+    <div class="container" style="max-width: 900px;">
+      <h2 class="title is-3 has-text-centered">Results</h2>
+      <div class="section-placeholder">
+        <!-- TODO: results table / chart -->
+        Results placeholder.
+      </div>
+    </div>
+  </section>
+
+  <!-- BibTeX -->
+  <section class="section">
+    <div class="container" style="max-width: 900px;">
+      <h2 class="title is-3 has-text-centered">BibTeX</h2>
+      <pre style="background:#f5f5f5; border-radius:8px;"><code>@misc{editppt,
+  title  = {EditPPT},
+  author = {TODO},
+  year   = {2026}
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="content has-text-centered footer-note">
+      <p>
+        Page template adapted from
+        <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>
+        (CC BY-SA 4.0).
       </p>
-      <p style="font-size: 0.82rem; color: #888; margin-bottom: 1rem; line-height: 1.6;">
-        From <a href="https://creativecommons.org/2021/11/15/open-minds-podcast-yana-buhrer-tavanier-and-pavel-kounchev-of-fine-acts/" target="_blank" rel="noopener">Open Minds from Creative Commons</a>
-        &middot;
-        <a href="https://podcasts.apple.com/kr/podcast/open-minds-from-creative-commons/id1554356942?i=1000581509635" target="_blank" rel="noopener">
-          <span class="icon is-small"><i class="fas fa-podcast"></i></span> Apple Podcasts
-        </a>
-        &middot;
-        Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">Creative Commons</a>
-      </p>
-      <div id="original-player-container">
-        <audio id="original-audio" preload="metadata"
-               src="./static/audios/test1/Dr_Beth_Harris_and_Dr_Steven_Zucker_of_Smarthistory.mp3"></audio>
-        <div id="original-controls">
-          <button id="original-play-btn" class="button is-dark is-small">
-            <span class="icon"><i class="fas fa-play"></i></span>
-          </button>
-          <span id="original-time" style="margin-left: 0.5rem; font-family: monospace; font-size: 0.85rem;">00:00 / 00:00</span>
-          <span id="original-speed" style="margin-left: 0.5rem;">
-            <button class="button is-small is-light" id="speed-btn">1x</button>
-          </span>
-        </div>
-        <div id="original-progress-wrap">
-          <div id="original-progress-bar"></div>
-          <div id="original-progress-cursor"></div>
-        </div>
-      </div>
     </div>
-
-    <!-- Timeline Visualization -->
-    <div class="box" id="timeline-box">
-      <h3 class="title is-5" style="margin-bottom: 1.5rem;">Speaker Timeline</h3>
-      <p class="subtitle is-6" style="margin-bottom: 2rem; color: #666;">Click any segment to play. The timeline syncs with the original audio.</p>
-      <div id="speaker-legend"></div>
-      <div id="timeline-container"></div>
-    </div>
-
-    <!-- Segment Details & Transcript -->
-    <div class="columns" style="margin-top: 1rem;">
-      <div class="column is-5">
-        <div class="box" id="segment-detail-box" style="height: 600px; overflow-y: auto;">
-          <h3 class="title is-5" style="margin-bottom: 0.75rem;">Segment Player</h3>
-          <div id="segment-player-info">
-            <p style="color: #999;">Click a segment on the timeline or transcript to play it here.</p>
-          </div>
-        </div>
-      </div>
-      <div class="column is-7">
-        <div class="box" id="transcript-box" style="height: 600px; overflow-y: auto;">
-          <h3 class="title is-5" style="margin-bottom: 0.75rem;">
-            Full Transcript
-            <span class="tag is-light" id="segment-count-tag"></span>
-          </h3>
-          <div id="transcript-container"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Processing Stats -->
-    <div class="box" id="stats-box" style="margin-top: 1rem;">
-      <h3 class="title is-5" style="margin-bottom: 0.75rem;">Processing Statistics</h3>
-      <div id="stats-container"></div>
-    </div>
-
-    <!-- ======== Demo 2 ======== -->
-    <hr style="margin: 3rem 0;">
-    <div class="columns is-centered has-text-centered">
-      <div class="column">
-        <h2 class="title is-3">Demo (2)</h2>
-        <p class="subtitle is-5" style="margin-bottom: 2rem;">
-          A second example from a different podcast episode.
-        </p>
-      </div>
-    </div>
-
-    <!-- Original Audio Player 2 -->
-    <div class="box" id="original-audio-box-2">
-      <h3 class="title is-5" style="margin-bottom: 1.5rem;">Original Audio</h3>
-      <p class="subtitle is-6" style="margin-bottom: 0.5rem; color: #666;">
-        Episode: <strong>Test English with Overlap (2min)</strong>
-      </p>
-      <div id="original-player-container-2">
-        <audio id="original-audio-2" preload="metadata"
-               src="./static/audios/test2/test_english_with_overlap_2min/test_english_with_overlap_2min.mp3"></audio>
-        <div id="original-controls-2">
-          <button id="original-play-btn-2" class="button is-dark is-small">
-            <span class="icon"><i class="fas fa-play"></i></span>
-          </button>
-          <span id="original-time-2" style="margin-left: 0.5rem; font-family: monospace; font-size: 0.85rem;">00:00 / 00:00</span>
-          <span id="original-speed-2" style="margin-left: 0.5rem;">
-            <button class="button is-small is-light" id="speed-btn-2">1x</button>
-          </span>
-        </div>
-        <div id="original-progress-wrap-2">
-          <div id="original-progress-bar-2"></div>
-          <div id="original-progress-cursor-2"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Timeline Visualization 2 -->
-    <div class="box" id="timeline-box-2">
-      <h3 class="title is-5" style="margin-bottom: 1.5rem;">Speaker Timeline</h3>
-      <p class="subtitle is-6" style="margin-bottom: 2rem; color: #666;">Click any segment to play. The timeline syncs with the original audio.</p>
-      <div id="speaker-legend-2"></div>
-      <div id="timeline-container-2"></div>
-    </div>
-
-    <!-- Segment Details & Transcript 2 -->
-    <div class="columns" style="margin-top: 1rem;">
-      <div class="column is-5">
-        <div class="box" id="segment-detail-box-2" style="height: 600px; overflow-y: auto;">
-          <h3 class="title is-5" style="margin-bottom: 0.75rem;">Segment Player</h3>
-          <div id="segment-player-info-2">
-            <p style="color: #999;">Click a segment on the timeline or transcript to play it here.</p>
-          </div>
-        </div>
-      </div>
-      <div class="column is-7">
-        <div class="box" id="transcript-box-2" style="height: 600px; overflow-y: auto;">
-          <h3 class="title is-5" style="margin-bottom: 0.75rem;">
-            Full Transcript
-            <span class="tag is-light" id="segment-count-tag-2"></span>
-          </h3>
-          <div id="transcript-container-2"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Processing Stats 2 -->
-    <div class="box" id="stats-box-2" style="margin-top: 1rem;">
-      <h3 class="title is-5" style="margin-bottom: 0.75rem;">Processing Statistics</h3>
-      <div id="stats-container-2"></div>
-    </div>
-  </div>
-</section>
-
-
-
-<script src="./static/js/demo-data.js"></script>
-<script src="./static/js/demo-data2.js"></script>
-<script src="./static/js/demo.js"></script>
-
-<!-- <footer class="footer">
-  <div class="container">
-    <div class="columns is-centered">
-      <div class="column is-8">
-        <div class="content">
-          <p>
-            This website is licensed under a <a rel="license"
-                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
-            Commons Attribution-ShareAlike 4.0 International License</a>.
-          </p>
-          <p>
-            Website template borrowed from <a
-              href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</footer> -->
+  </footer>
 
 </body>
 </html>
